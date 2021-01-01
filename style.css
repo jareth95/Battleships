@@ -1,0 +1,8 @@
+h1 {
+    color: blue;
+}
+.gameBoard {
+    height: 400px;
+    width: 400px;
+    background-color: gray;
+}

@@ -1,3 +1,5 @@
+// add that all ships need to be deployed before starting game
+
 document.addEventListener('DOMContentLoaded', () => {
 
     const userGrid = document.querySelector('.user-gameBoard')
@@ -14,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const turnDisplay = document.querySelector('#whose-go')
     const infoDisplay = document.querySelector('#info')
     const resetButton = document.querySelector('#reset')
+    const setupButtons = document.querySelector('.setup-buttons')
     
     let userSquares = []
     let computerSquares = []
@@ -86,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAtRightEdge = current.some(index => (randomStart + index) % width === width -1)
         const isAtLeftEdge = current.some(index => (randomStart + index) % width === 0)
 
-        if(!isTaken && !isAtLeftEdge && !isAtRightEdge) current.forEach(index => computerSquares[randomStart + index].classList.add('taken', ship.name, 'noDisplay'))
+        if(!isTaken && !isAtLeftEdge && !isAtRightEdge) current.forEach(index => computerSquares[randomStart + index].classList.add('taken', ship.name))
 
         else generate(ship)
     }
@@ -169,7 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             for (let i = 0; i < draggedShipLength; i++) {
                 if(!takenSquare) {
-                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + i].classList.add('taken', shipClass)
+                    let directionClass
+                    if (i === 0) directionClass = 'start'
+                    if (i === draggedShipLength -1) directionClass = 'end'
+                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + i].classList.add('taken', 'horizontal', directionClass, shipClass)
                 }
             }
         } else if (!isHorizontal && !newNotAllowedVertical.includes(shipLastId) ) {
@@ -180,7 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             for (let i = 0; i < draggedShipLength; i++) {
                 if (!takenSquare) {
-                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + width*i].classList.add('taken', shipClass)
+                    let directionClass
+                    if (i === 0) directionClass = 'start'
+                    if (i === draggedShipLength -1) directionClass = 'end'
+                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + width*i].classList.add('taken', 'vertical', directionClass, shipClass)
                 }
             } 
         } else return
@@ -203,7 +212,34 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout (computerGo, 1000)
         }
     }
-    startButton.addEventListener('click', playGame)
+    startButton.addEventListener('click', () => {
+        
+        let containsDestroyer = false
+        let containsSubmarine = false
+        let containsCruiser = false
+        let containsBattleship = false
+        let containsCarrier = false
+        
+        for (let i = 0; i < userSquares.length; i++) {
+
+             let searchDestroyer = userSquares[i].classList.contains('destroyer')
+             let searchSubmarine = userSquares[i].classList.contains('submarine')
+             let searchCruiser = userSquares[i].classList.contains('cruiser')
+             let searchBattleship = userSquares[i].classList.contains('battleship')
+             let searchCarrier = userSquares[i].classList.contains('carrier')
+             if (searchDestroyer) containsDestroyer = true
+             if (searchSubmarine) containsSubmarine = true
+             if (searchCruiser) containsCruiser = true
+             if (searchBattleship) containsBattleship = true
+             if (searchCarrier) containsCarrier = true 
+        }
+        if (containsDestroyer && containsSubmarine && containsCruiser && containsBattleship && containsCarrier) {
+            setupButtons.style.display = 'none'
+            playGame()
+        } else {
+            alert('Please deploy all ships to play')
+        }  
+    })
 
     let destroyerCount = 0
     let submarineCount = 0
@@ -241,7 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function computerGo() {
         let random = Math.floor(Math.random() * userSquares.length)
         if (!userSquares[random].classList.contains('boom')) {
-            userSquares[random].classList.add('boom')
+            if (userSquares[random].classList.contains('taken')) {
+                userSquares[random].classList.add('boom')
+            } else {
+                userSquares[random].classList.add('miss')
+            }
             if (userSquares[random].classList.contains('destroyer')) cpuDestroyerCount++
             if (userSquares[random].classList.contains('submarine')) cpuSubmarineCount++
             if (userSquares[random].classList.contains('cruiser')) cpuCruiserCount++

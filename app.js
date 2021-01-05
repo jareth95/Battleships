@@ -13,8 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const rotateButton = document.querySelector('#rotate')
     const turnDisplay = document.querySelector('#whose-go')
     const infoDisplay = document.querySelector('#info')
-    const userSquares = []
-    const computerSquares = []
+    const resetButton = document.querySelector('#reset')
+    
+    let userSquares = []
+    let computerSquares = []
     let isHorizontal = true
     let isGameOver = false
     let currentPlayer = 'user'
@@ -84,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAtRightEdge = current.some(index => (randomStart + index) % width === width -1)
         const isAtLeftEdge = current.some(index => (randomStart + index) % width === 0)
 
-        if(!isTaken && !isAtLeftEdge && !isAtRightEdge) current.forEach(index => computerSquares[randomStart + index].classList.add('taken', ship.name))
+        if(!isTaken && !isAtLeftEdge && !isAtRightEdge) current.forEach(index => computerSquares[randomStart + index].classList.add('taken', ship.name, 'noDisplay'))
 
         else generate(ship)
     }
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     rotateButton.addEventListener('click', rotate)
-    // move around user ships
+    
     ships.forEach(ship => ship.addEventListener('dragstart', dragStart))
     userSquares.forEach(square => square.addEventListener('dragstart', dragStart))
     userSquares.forEach(square => square.addEventListener('dragover', dragOver))
@@ -140,6 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function dragLeave(e) {
         e.preventDefault()
     }
+    function dragEnd(e) {
+        e.preventDefault()
+    }
     function dragDrop() {
         let shipNameWithLastId = draggedShip.lastChild.id
         let shipClass = shipNameWithLastId.slice(0, -2)
@@ -150,26 +155,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let newNotAllowedHorizontal = notAllowedHorizontal.splice(0, 10 * lastShipIndex)
         let newNotAllowedVertical = notAllowedVertical.splice(0, 10 * lastShipIndex)
+        let takenSquare = false
 
         selectedShipIndex = parseInt(selectedShipNameWithIndex.substr(-1))
         shipLastId = shipLastId - selectedShipIndex
-
+        
         if (isHorizontal && !newNotAllowedHorizontal.includes(shipLastId)) {
-            for (let i = 0; i < draggedShipLength; i++) {
-                userSquares[parseInt(this.dataset.id) - selectedShipIndex + i].classList.add('taken', shipClass)
-            } 
-        } else if (!isHorizontal && !newNotAllowedVertical.includes(shipLastId)) {
-            for (let i = 0; i < draggedShipLength; i++) {
-                userSquares[parseInt(this.dataset.id) - selectedShipIndex + width*i].classList.add('taken', shipClass)
-            }
             
+            for (let i = 0; i < draggedShipLength; i++) {
+                if (userSquares[parseInt(this.dataset.id) - selectedShipIndex + i].classList.contains('taken', shipClass)){
+                    takenSquare = true
+                }
+            }
+            for (let i = 0; i < draggedShipLength; i++) {
+                if(!takenSquare) {
+                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + i].classList.add('taken', shipClass)
+                }
+            }
+        } else if (!isHorizontal && !newNotAllowedVertical.includes(shipLastId) ) {
+            for (let i = 0; i < draggedShipLength; i++) {
+                if (userSquares[parseInt(this.dataset.id) - selectedShipIndex + width*i].classList.contains('taken', shipClass)) {
+                    takenSquare = true
+                }
+            }
+            for (let i = 0; i < draggedShipLength; i++) {
+                if (!takenSquare) {
+                    userSquares[parseInt(this.dataset.id) - selectedShipIndex + width*i].classList.add('taken', shipClass)
+                }
+            } 
         } else return
-
-        displayGrid.removeChild(draggedShip)
+        if (!takenSquare) {
+            displayGrid.removeChild(draggedShip)
+        }
     }
-    function dragEnd(e) {
-        e.preventDefault()
-    }
+    
     // Game logic
     function playGame() {
         if (isGameOver) return
@@ -203,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if(square.classList.contains('taken')) {
             square.classList.add('boom')
+            square.classList.remove('noDisplay')
         } else {
             square.classList.add('miss')
         }
@@ -284,4 +304,9 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameOver = true
         startButton.removeEventListener('click', playGame)
     }
+    // Reset game
+    function gameReset() {
+        location.reload()
+    }
+    resetButton.addEventListener('click', gameReset)
 })

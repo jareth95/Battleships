@@ -29,7 +29,6 @@ h1 {
 .display-ships {
     height: 400px;
     width: 400px;
-    background-color: lightblue;
     margin: 20px;
 }
 .ship div {
@@ -128,7 +127,11 @@ h1 {
 }
 .boom {
     background-color: red;
+    opacity: 1;
 }
 .miss {
     background-color: black;
+}
+.noDisplay {
+    opacity: 0;
 }

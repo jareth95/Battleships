@@ -197,7 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
             displayGrid.removeChild(draggedShip)
         }
     }
-    
+    // Touch Drop
+
+
     // Game logic
     function playGame() {
         if (isGameOver) return

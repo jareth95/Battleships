@@ -117,6 +117,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     rotateButton.addEventListener('click', rotate)
+
+    // ships.forEach(ship => ship.addEventListener('touchmove', touchMove))
+    // ships.forEach(ship => ship.addEventListener('touchend', touchEnd))
+
+    // function touchMove(e) {
+    //     console.log('hey')
+    //     selectedShipNameWithIndex = e.target.id
+    //     draggedShip = this
+    //     draggedShipLength = this.childNodes.length
+    //     console.log(selectedShipNameWithIndex)
+    //     console.log(draggedShip)
+    //     console.log(draggedShipLength)
+    // }
+
+    // function touchEnd() {
+    //     console.log('bye')
+        
+    // }
     
     ships.forEach(ship => ship.addEventListener('dragstart', dragStart))
     userSquares.forEach(square => square.addEventListener('dragstart', dragStart))
